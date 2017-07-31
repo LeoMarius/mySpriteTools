@@ -5,19 +5,20 @@ var Banana = {
     width_i: 852, ///Taille du personnage
     height_i: 942,
 
-    scale: 1,
-
     scale: 0.5, ///Mise à l'échelle
 
-    posX: 50,
+    posX: 50, ///position in the caneva
     posY: 100,
 
-    state: "iddle",
-    previousState: "iddle",
-    stateList: ["iddle","wave","wave2"],
+    state: ["iddle"], ///Curent animation state
+    previousState: ["iddle"], ///previous animation state
 
-    partToDisplay: ["armL", "body", "legs", "armR", "face"],
+    stateList: ["iddle", "wave", "wave2"], ///all the animation state listed
 
+    partToDisplay: ["armL", "body", "legs", "armR", "face"], ///Part to display on the run loop
+
+
+    /// All the parts of the character
     parts: {
 
         armL: {
@@ -166,78 +167,27 @@ var Banana = {
 
     },
 
-
-
-
-    breath: {
-
-        breathing: true,
-
-        breathAmt: 0, ///Respiration en ce moment
-
-        breathInc: 0.4,
-        breathDir: 1,
-        breathMax: 5,
-
-        update: function (chara) {
-            if (chara.breath.breathDir === 1) { // breath in
-                chara.breath.breathAmt -= chara.breath.breathInc;
-                if (chara.breath.breathAmt < -chara.breath.breathMax) {
-                    chara.breath.breathDir = -1;
-                }
-            } else { // breath out
-                chara.breath.breathAmt += chara.breath.breathInc;
-                if (chara.breath.breathAmt > chara.breath.breathMax) {
-                    chara.breath.breathDir = 1;
-                }
-            }
-        }
-    },
-
-
-
-    iddle: {
-        init: function (chara) {
-
-            /*      for (var i = 0; i < chara.parts.length; i++) {
-                      var part = chara.parts[i];
-                      part.posX = part.posX_i;
-                      part.posY = part.posY_i;
-
-                      if (part.breath == true) {
-                          part.posY = part.posY + chara.breath.breathAmt
-                      }
-                  }*/
-
-        },
-        partUsed: ["armL", "body", "legs", "armR", "face"],
-
-
-
-
-    },
-
+    /// All the animations cycles
     anims: {
-        current: "none",
 
         iddle: {
-            
+
 
             init: function (target) {
 
-             target.partToDisplay = ["arm_straight_L", "body", "legs", "arm_straight_R", "face"];
+                target.partToDisplay = ["arm_straight_L", "body", "legs", "arm_straight_R", "face"];
                 target.previousState = "iddle";
-           
+
 
 
             },
-            
-            run : function(target){
+
+            run: function (target) {
                 if (target.previousState != "iddle") {
                     target.anims.iddle.init(target);
                     return;
                 }
-                
+
             },
 
 
@@ -246,13 +196,6 @@ var Banana = {
 
         },
 
-
-        none: function (target) {
-            /*
-                        //  console.log(target);
-                        target.partToDisplay[0].sprite.currentFrame = 0;
-                        target.partToDisplay[3].sprite.currentFrame = 0;*/
-        },
         wave: {
 
             init: function (target, armLini, armRini) {
@@ -294,8 +237,9 @@ var Banana = {
                 }
             }
         },
-        wave2 : {
-            
+
+        wave2: {
+
             init: function (target, armLini, armRini) {
 
                 target.partToDisplay = ["armL", "body", "legs", "armR", "face"];
@@ -304,7 +248,7 @@ var Banana = {
                 target.parts["armR"].sprite.currentFrame = armRini;
 
             },
-             run: function (target) {
+            run: function (target) {
                 if (target.previousState != "wave2") {
                     target.anims.wave2.init(target, 0, 0);
                     return;
@@ -331,9 +275,35 @@ var Banana = {
                         part.sprite.currentFrame = 0;
                     }
                 }
-             }
+            }
 
-            
+
+        },
+
+        breath: {
+
+            breathing: true,
+
+            breathAmt: 0, ///Respiration en ce moment
+
+            breathInc: 0.4,
+            breathDir: 1,
+            breathMax: 5,
+
+            update: function (chara) {
+                var brth = chara.anims.breath;
+                if (brth.breathDir === 1) { // breath in
+                    brth.breathAmt -= brth.breathInc;
+                    if (brth.breathAmt < -brth.breathMax) {
+                        brth.breathDir = -1;
+                    }
+                } else { // breath out
+                    brth.breathAmt += brth.breathInc;
+                    if (brth.breathAmt > brth.breathMax) {
+                        brth.breathDir = 1;
+                    }
+                }
+            }
         },
 
     },
@@ -343,38 +313,34 @@ var Banana = {
     redraw: function () {
 
 
-        if (this.breath.breathing) {
-            this.breath.update(this);
+        //To be improved
+        /*
+        if (this.anims.breath.breathing) {
+            this.anims.breath.update(this);
         }
+        */
 
 
-        this.iddle.init(this);
-
-       // console.log(this.state)
-        
-
-        if (this.state == "iddle") {
-            this.anims.iddle.run(this);
-        } else if (this.state == "wave") {
-            this.anims.wave.run(this);
-        }else if (this.state == "wave2") {
-            this.anims.wave2.run(this);
+        /// Scan all the animation running and run updates
+        for (var i = 0; i < this.state.length; i++) {
+            var state = this.state[i],
+                animTarget = this.anims[state];
+            animTarget.run(this);
         }
-
 
 
         for (var i = 0; i < this.partToDisplay.length; i++) {
 
             var part = this.parts[this.partToDisplay[i]]; //Va chercher les pièces à afficher et pointe vers elles
 
-            //Si les images existent pas, ont les importent
+            //If images are not loaded yet
             if (images[part.name] == undefined) {
                 images[part.name] = new Image();
                 images[part.name].src = part.src;
             }
 
 
-            //Si c'est un sprite, ont fait les maths
+            //If image is a sprite, we do the maths
             if (part.sprite != undefined) {
 
                 var targetSpriteY = 0,
@@ -384,14 +350,11 @@ var Banana = {
 
                 if (part.sprite.currentFrame >= part.sprite.imagesPerLine) {
                     targetSpriteY = Math.floor(part.sprite.currentFrame / part.sprite.imagesPerLine);
-                    // targetSpriteY += 1;
+
                 }
 
                 targetSpriteX = part.sprite.currentFrame - (targetSpriteY * part.sprite.imagesPerLine);
 
-                if (i == 0) {
-                    //             console.log(targetSpriteY + " : " + targetSpriteX);
-                }
 
                 context.drawImage(
                     images[part.name],
@@ -416,8 +379,8 @@ var Banana = {
                     part.height,
                     this.posX + part.posX * this.scale,
                     this.posY + part.posY * this.scale,
-                    part.width * this.scale* part.scale,
-                    part.height * this.scale* part.scale,
+                    part.width * this.scale * part.scale,
+                    part.height * this.scale * part.scale,
                 )
             };
 

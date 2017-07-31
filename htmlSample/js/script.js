@@ -1,42 +1,26 @@
-// Copyright 2011 William Malone (www.williammalone.com)
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * 07/2017
+ * ----------------------------------------------------------------------------
+ * "THE BEER-WARE LICENSE" (Revision 42):
+  <contact@leomarius.com> wrote this file.  As long as you retain this notice you can do whatever you want with this stuff. If we meet some day, and you think this stuff is worth it, you can buy me a beer in return.   Leo MARIUS
+ * ----------------------------------------------------------------------------
+ 
+ * Code based on thoses tutorials (but it's very different now) : http://www.williammalone.com/articles/create-html5-canvas-javascript-game-character/ and http://www.williammalone.com/articles/create-html5-canvas-javascript-sprite-animation/
+
+*/
+
 
 var canvas;
 var context;
+
 var images = {};
 
-
 var fps = 30;
-
-
-
-
-
 var fpsInterval = setInterval(updateFPS, 1000);
-
 var numFramesDrawn = 0;
 var curFPS = 0;
 
 var charaList = [];
-
-
-
-
-
-
-
-
 
 function updateFPS() {
 
@@ -92,7 +76,6 @@ function redraw() {
         charaList[i].redraw();
     }
 
-
     // on affiche le débug fps
     context.font = "bold 12px sans-serif";
     context.fillText("fps: " + curFPS + "/" + fps + " (" + numFramesDrawn + ")", 30, 30);
@@ -105,12 +88,12 @@ function toogleAnims() {
     for (var i = 0; i < Banana.stateList.length; i++) {
         
         if (Banana.stateList[i] == Banana.state) {
-            Banana.previousState = Banana.state;
+            Banana.previousState = [Banana.state];
 
             if (i == ((Banana.stateList.length)-1)) {
-                Banana.state = Banana.stateList[0];
+                Banana.state = [Banana.stateList[0]];
             } else {
-                Banana.state = Banana.stateList[i + 1];
+                Banana.state = [Banana.stateList[i + 1]];
             }
             console.log("New Banana state : "+Banana.state);
             break;
